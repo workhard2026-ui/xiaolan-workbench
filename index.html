@@ -35,6 +35,10 @@
         <span class="nav-dot green"></span>
         <span>每日咨询</span>
       </button>
+      <button class="nav-btn" data-id="treehole">
+        <span class="nav-dot pink"></span>
+        <span>树洞</span>
+      </button>
     </nav>
   </aside>
 
@@ -225,6 +229,58 @@
         </div>
         <div class="news-list" id="aiNews">
           <div class="news-loading">加载中...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 树洞 ===== -->
+    <section class="panel" id="panel-treehole">
+      <header class="panel-header pink">
+        <h1>◉ 树洞</h1>
+        <p>说给树洞听 · 安全又温暖</p>
+      </header>
+
+      <div class="tree-intro">
+        <div class="tree-icon">🌳</div>
+        <p>在这里，你可以倾诉任何心事。<br>所有内容只保存在你的手机上，无人知晓。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>✍️ 写下你的心事</span>
+        </div>
+        <textarea class="hole-textarea" id="holeTextarea" placeholder="今天想说点什么..."></textarea>
+        <div class="hole-tags" id="holeTags">
+          <span class="hole-tag" data-mood="开心">😊 开心</span>
+          <span class="hole-tag" data-mood="难过">😢 难过</span>
+          <span class="hole-tag" data-mood="焦虑">😰 焦虑</span>
+          <span class="hole-tag" data-mood="愤怒">😡 愤怒</span>
+          <span class="hole-tag" data-mood="迷茫">😶 迷茫</span>
+          <span class="hole-tag" data-mood="感恩">🥰 感恩</span>
+        </div>
+        <button class="btn-submit-hole" onclick="submitTreehole()">投递给树洞</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💌 树洞回信</div>
+        <div class="hole-reply" id="holeReply">
+          <div class="empty-state">
+            <div class="empty-icon">💌</div>
+            <p>投递心事后，树洞会给你温暖的回信</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📖 心事记录</span>
+          <button class="btn-clear-hole" onclick="clearTreehole()">清空</button>
+        </div>
+        <div class="hole-records" id="holeRecords">
+          <div class="empty-state" id="holeEmpty">
+            <div class="empty-icon">🌿</div>
+            <p>还没有心事记录~</p>
+          </div>
         </div>
       </div>
     </section>

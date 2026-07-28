@@ -68,7 +68,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.classList.add('active');
     
     // 更新 active 按钮颜色
-    const colors = { yangwa: 'var(--orange)', kaosheng: 'var(--blue)', zixun: 'var(--green)' };
+    const colors = { yangwa: 'var(--orange)', kaosheng: 'var(--blue)', zixun: 'var(--green)', treehole: 'var(--pink)' };
     btn.style.background = colors[id];
     
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -411,6 +411,116 @@ function refreshNews() {
   setTimeout(loadNews, 800);
 }
 
+// ===== 树洞 =====
+let selectedMood = '';
+
+// 心情标签选择
+document.querySelectorAll('.hole-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.hole-tag').forEach(t => t.classList.remove('active'));
+    tag.classList.add('active');
+    selectedMood = tag.dataset.mood;
+  });
+});
+
+const moodEmojis = {
+  '开心': '😊', '难过': '😢', '焦虑': '😰',
+  '愤怒': '😡', '迷茫': '😶', '感恩': '🥰'
+};
+
+// 树洞回信模板
+const replyTemplates = {
+  '开心': '看到你今天心情不错，真替你高兴！开心的日子值得记住，继续加油呀~ 🌸',
+  '难过': '难过的时候，就让自己难过一会儿，没关系。树洞永远在这里陪着你。明天会是新的一天~ 💛',
+  '焦虑': '焦虑说明你在认真对待生活。深呼吸，一步一步来，你比你想象的更强大~ 🌿',
+  '愤怒': '生气是正常的情绪，允许自己感受它。不过别忘了，你值得拥有平静~ 🍃',
+  '迷茫': '迷茫的时候，不妨停下来想想什么对你最重要。答案会慢慢出现的~ 🌈',
+  '感恩': '懂得感恩的你，内心一定很富足。这些温暖的瞬间会照亮你的每一天~ ☀️',
+  '': '谢谢你来树洞倾诉。无论今天经历了什么，你都不是一个人~ 🌳'
+};
+
+function submitTreehole() {
+  const textarea = document.getElementById('holeTextarea');
+  const text = textarea.value.trim();
+  if (!text) { alert('请先写下你的心事'); return; }
+  
+  const data = loadData();
+  if (!data.treehole) data.treehole = [];
+  
+  const mood = selectedMood || '';
+  const emoji = moodEmojis[mood] || '🌿';
+  
+  data.treehole.push({
+    text: text,
+    mood: mood,
+    emoji: emoji,
+    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    date: getToday(),
+    reply: replyTemplates[mood] || replyTemplates['']
+  });
+  
+  saveData(data);
+  textarea.value = '';
+  selectedMood = '';
+  document.querySelectorAll('.hole-tag').forEach(t => t.classList.remove('active'));
+  
+  renderTreehole();
+}
+
+function deleteTreeholeItem(index) {
+  const data = loadData();
+  if (data.treehole) {
+    data.treehole.splice(index, 1);
+    saveData(data);
+    renderTreehole();
+  }
+}
+
+function clearTreehole() {
+  if (!confirm('确定要清空所有心事记录吗？')) return;
+  const data = loadData();
+  data.treehole = [];
+  saveData(data);
+  renderTreehole();
+}
+
+function renderTreehole() {
+  const data = loadData();
+  const records = data.treehole || [];
+  const recordsEl = document.getElementById('holeRecords');
+  const emptyEl = document.getElementById('holeEmpty');
+  const replyEl = document.getElementById('holeReply');
+  
+  if (records.length === 0) {
+    recordsEl.innerHTML = '';
+    emptyEl.style.display = 'block';
+    replyEl.innerHTML = '<div class="empty-state"><div class="empty-icon">💌</div><p>投递心事后，树洞会给你温暖的回信</p></div>';
+  } else {
+    emptyEl.style.display = 'none';
+    
+    // 显示最近一条的回信
+    const latest = records[records.length - 1];
+    replyEl.innerHTML = `
+      <div class="reply-content">
+        <div class="reply-text">${latest.reply}</div>
+        <div class="reply-date">${latest.emoji} ${formatDate(latest.date)} ${latest.time}</div>
+      </div>
+    `;
+    
+    // 显示所有记录（最新在前）
+    recordsEl.innerHTML = records.map((r, i) => `
+      <div class="hole-record">
+        <span class="hole-record-mood">${r.emoji}</span>
+        <div class="hole-record-content">
+          <div class="hole-record-text">${r.text}</div>
+          <div class="hole-record-time">${formatDate(r.date)} ${r.time} · ${r.mood || '未标记'}</div>
+        </div>
+        <button class="del-btn" onclick="deleteTreeholeItem(${i})">✕</button>
+      </div>
+    `).reverse().join('');
+  }
+}
+
 // ===== 初始化 =====
 function init() {
   initDates();
@@ -426,6 +536,9 @@ function init() {
   
   // 咨询
   loadNews();
+  
+  // 树洞
+  renderTreehole();
 }
 
 // 页面加载完成后初始化

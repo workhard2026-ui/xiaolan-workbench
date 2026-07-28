@@ -499,6 +499,141 @@ html, body {
   font-size: 13px;
 }
 
+/* ========== 树洞 ========== */
+.panel-header.pink { background: var(--light-pink); }
+.panel-header.pink .day-badge { background: var(--pink); color: #fff; }
+
+.nav-dot.pink { background: var(--pink); }
+
+.tree-intro {
+  background: linear-gradient(180deg, #d4ecdb, #b8e0c1);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #2c6e44;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tree-icon { font-size: 48px; margin-bottom: 8px; }
+
+.hole-textarea {
+  width: 100%;
+  min-height: 100px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text);
+  background: #fafafa;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 12px;
+}
+.hole-textarea:focus { border-color: var(--pink); background: #fff; }
+
+.hole-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hole-tag {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: #f5f5f5;
+  color: #555;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+}
+.hole-tag.active {
+  background: var(--pink);
+  color: #fff;
+}
+
+.btn-submit-hole {
+  width: 100%;
+  background: var(--pink);
+  color: #fff;
+  border: none;
+  padding: 13px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-submit-hole:hover { background: #e84a05; }
+
+.btn-clear-hole {
+  background: #ffe0e0;
+  color: #d04a4a;
+  border: none;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hole-reply {
+  min-height: 60px;
+}
+
+.reply-content {
+  background: var(--light-pink);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.6;
+  animation: fade .3s ease;
+}
+
+.reply-content .reply-text { font-weight: 600; }
+.reply-content .reply-date { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+.hole-records { display: flex; flex-direction: column; gap: 10px; }
+
+.hole-record {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: var(--light-pink);
+  border-radius: 12px;
+  animation: fade .2s ease;
+}
+
+.hole-record-mood {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hole-record-content { flex: 1; min-width: 0; }
+.hole-record-text { font-size: 13px; font-weight: 600; color: #2a2a2a; line-height: 1.5; }
+.hole-record-time { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+.hole-record .del-btn {
+  background: #ffe0e0;
+  color: #d04a4a;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* ========== Responsive ========== */
 @media (max-width: 360px) {
   :root { --sidebar-w: 80px; }
