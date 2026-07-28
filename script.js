@@ -1,16 +1,103 @@
 // ===== 小兰的工作台 =====
 const STORAGE_KEY = 'xiaolan_workbench';
+const BACKUP_KEY = 'xiaolan_workbench_backup';
 
-// 数据管理
+// ===== 数据持久化（双重保障）=====
 function loadData() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-  } catch { return {}; }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    const data = JSON.parse(raw);
+    // 自动创建备份
+    localStorage.setItem(BACKUP_KEY, raw);
+    return data;
+  } catch (e) {
+    // 主数据损坏，尝试从备份恢复
+    console.warn('主数据损坏，尝试从备份恢复');
+    try {
+      const backup = localStorage.getItem(BACKUP_KEY);
+      if (backup) {
+        const data = JSON.parse(backup);
+        // 恢复主数据
+        localStorage.setItem(STORAGE_KEY, backup);
+        return data;
+      }
+    } catch (e2) {
+      console.warn('备份也损坏了，重置数据');
+    }
+    return {};
+  }
 }
 
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  try {
+    const raw = JSON.stringify(data);
+    localStorage.setItem(STORAGE_KEY, raw);
+    // 同步备份
+    localStorage.setItem(BACKUP_KEY, raw);
+  } catch (e) {
+    // localStorage 空间不足时清理旧数据
+    console.warn('存储空间不足，清理历史数据');
+    try {
+      // 清理超过30天的养娃记录
+      if (data.yangwa) {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
+        Object.keys(data.yangwa).forEach(k => {
+          if (k < cutoff) delete data.yangwa[k];
+        });
+      }
+      // 清理超过30天的学习记录
+      if (data.study) {
+        ['law','finance','practice'].forEach(s => {
+          if (data.study[s]) {
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
+            Object.keys(data.study[s]).forEach(k => {
+              if (k < cutoff) delete data.study[s][k];
+            });
+          }
+        });
+      }
+      // 清理超过30天的学习状态
+      if (data.studyStatus) {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
+        Object.keys(data.studyStatus).forEach(k => {
+          if (k < cutoff) delete data.studyStatus[k];
+        });
+      }
+      const raw = JSON.stringify(data);
+      localStorage.setItem(STORAGE_KEY, raw);
+      localStorage.setItem(BACKUP_KEY, raw);
+    } catch (e2) {
+      alert('存储空间不足，请联系小兰处理！');
+    }
+  }
 }
+
+// 页面关闭/切换前保存数据
+window.addEventListener('beforeunload', () => {
+  const data = loadData();
+  saveData(data);
+});
+
+// 页面可见性变化时保存（切换标签页、最小化浏览器）
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    const data = loadData();
+    saveData(data);
+  }
+});
+
+// 每分钟自动保存一次
+setInterval(() => {
+  const data = loadData();
+  saveData(data);
+}, 60000);
 
 // ===== 日期工具 =====
 function getToday() {

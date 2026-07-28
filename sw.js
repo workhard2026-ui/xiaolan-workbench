@@ -1,17 +1,8 @@
-const CACHE_NAME = 'xiaolan-v1';
+const CACHE_NAME = 'xiaolan-v2';
 const BASE = '/xiaolan-workbench';
-const ASSETS = [
-  `${BASE}/`,
-  `${BASE}/index.html`,
-  `${BASE}/styles.css`,
-  `${BASE}/script.js`,
-  `${BASE}/manifest.json`,
-  `${BASE}/icon-192.png`,
-  `${BASE}/icon-512.png`
-];
 
+// 离线优先：先缓存，再尝试更新
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
@@ -23,7 +14,23 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // 只缓存同源请求
+  if (!e.request.url.startsWith(self.location.origin) && !e.request.url.startsWith('https://workhard2026-ui.github.io')) {
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    caches.open(CACHE_NAME).then(cache =>
+      fetch(e.request).then(response => {
+        // 网络成功：缓存并返回
+        if (response.ok) {
+          cache.put(e.request, response.clone());
+        }
+        return response;
+      }).catch(() =>
+        // 网络失败：返回缓存版本（离线可用）
+        cache.match(e.request)
+      )
+    )
   );
 });
