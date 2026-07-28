@@ -1,30 +1,20 @@
-// ===== å°å…°çš„å·¥ä½œå° =====
+// ===== Ğ¡À¼µÄ¹¤×÷Ì¨ =====
 const STORAGE_KEY = 'xiaolan_workbench';
 const BACKUP_KEY = 'xiaolan_workbench_backup';
 
-// ===== æ•°æ®æŒä¹…åŒ–ï¼ˆåŒé‡ä¿éšœï¼‰=====
+// ===== Êı¾İ³Ö¾Ã»¯£¨Ë«ÖØ±£ÕÏ£©=====
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     const data = JSON.parse(raw);
-    // è‡ªåŠ¨åˆ›å»ºå¤‡ä»½
     localStorage.setItem(BACKUP_KEY, raw);
     return data;
   } catch (e) {
-    // ä¸»æ•°æ®æŸåï¼Œå°è¯•ä»å¤‡ä»½æ¢å¤
-    console.warn('ä¸»æ•°æ®æŸåï¼Œå°è¯•ä»å¤‡ä»½æ¢å¤');
     try {
       const backup = localStorage.getItem(BACKUP_KEY);
-      if (backup) {
-        const data = JSON.parse(backup);
-        // æ¢å¤ä¸»æ•°æ®
-        localStorage.setItem(STORAGE_KEY, backup);
-        return data;
-      }
-    } catch (e2) {
-      console.warn('å¤‡ä»½ä¹ŸæŸåäº†ï¼Œé‡ç½®æ•°æ®');
-    }
+      if (backup) { const data = JSON.parse(backup); localStorage.setItem(STORAGE_KEY, backup); return data; }
+    } catch (e2) {}
     return {};
   }
 }
@@ -33,75 +23,37 @@ function saveData(data) {
   try {
     const raw = JSON.stringify(data);
     localStorage.setItem(STORAGE_KEY, raw);
-    // åŒæ­¥å¤‡ä»½
     localStorage.setItem(BACKUP_KEY, raw);
   } catch (e) {
-    // localStorage ç©ºé—´ä¸è¶³æ—¶æ¸…ç†æ—§æ•°æ®
-    console.warn('å­˜å‚¨ç©ºé—´ä¸è¶³ï¼Œæ¸…ç†å†å²æ•°æ®');
+    // ÇåÀí30ÌìÇ°¾ÉÊı¾İ
     try {
-      // æ¸…ç†è¶…è¿‡30å¤©çš„å…»å¨ƒè®°å½•
-      if (data.yangwa) {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
-        Object.keys(data.yangwa).forEach(k => {
-          if (k < cutoff) delete data.yangwa[k];
-        });
-      }
-      // æ¸…ç†è¶…è¿‡30å¤©çš„å­¦ä¹ è®°å½•
-      if (data.study) {
-        ['law','finance','practice'].forEach(s => {
-          if (data.study[s]) {
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
-            Object.keys(data.study[s]).forEach(k => {
-              if (k < cutoff) delete data.study[s][k];
-            });
-          }
-        });
-      }
-      // æ¸…ç†è¶…è¿‡30å¤©çš„å­¦ä¹ çŠ¶æ€
-      if (data.studyStatus) {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const cutoff = `${thirtyDaysAgo.getFullYear()}-${String(thirtyDaysAgo.getMonth()+1).padStart(2,'0')}-${String(thirtyDaysAgo.getDate()).padStart(2,'0')}`;
-        Object.keys(data.studyStatus).forEach(k => {
-          if (k < cutoff) delete data.studyStatus[k];
-        });
-      }
-      const raw = JSON.stringify(data);
-      localStorage.setItem(STORAGE_KEY, raw);
-      localStorage.setItem(BACKUP_KEY, raw);
-    } catch (e2) {
-      alert('å­˜å‚¨ç©ºé—´ä¸è¶³ï¼Œè¯·è”ç³»å°å…°å¤„ç†ï¼');
-    }
+      const cutoff = dateOffset(-30);
+      if (data.yangwa) Object.keys(data.yangwa).forEach(k => { if (k < cutoff) delete data.yangwa[k]; });
+      if (data.study) ['law','finance','practice'].forEach(s => { if (data.study[s]) Object.keys(data.study[s]).forEach(k => { if (k < cutoff) delete data.study[s][k]; }); });
+      if (data.studyStatus) Object.keys(data.studyStatus).forEach(k => { if (k < cutoff) delete data.studyStatus[k]; });
+      if (data.plans) Object.keys(data.plans).forEach(k => { if (k < cutoff) delete data.plans[k]; });
+      if (data.expenses) Object.keys(data.expenses).forEach(k => { if (k < cutoff) delete data.expenses[k]; });
+      const raw2 = JSON.stringify(data);
+      localStorage.setItem(STORAGE_KEY, raw2);
+      localStorage.setItem(BACKUP_KEY, raw2);
+    } catch (e2) {}
   }
 }
 
-// é¡µé¢å…³é—­/åˆ‡æ¢å‰ä¿å­˜æ•°æ®
-window.addEventListener('beforeunload', () => {
-  const data = loadData();
-  saveData(data);
-});
+// Ò³Ãæ¹Ø±ÕÇ°±£´æ
+window.addEventListener('beforeunload', () => saveData(loadData()));
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveData(loadData()); });
+setInterval(() => saveData(loadData()), 60000);
 
-// é¡µé¢å¯è§æ€§å˜åŒ–æ—¶ä¿å­˜ï¼ˆåˆ‡æ¢æ ‡ç­¾é¡µã€æœ€å°åŒ–æµè§ˆå™¨ï¼‰
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    const data = loadData();
-    saveData(data);
-  }
-});
-
-// æ¯åˆ†é’Ÿè‡ªåŠ¨ä¿å­˜ä¸€æ¬¡
-setInterval(() => {
-  const data = loadData();
-  saveData(data);
-}, 60000);
-
-// ===== æ—¥æœŸå·¥å…· =====
+// ===== ÈÕÆÚ¹¤¾ß =====
 function getToday() {
   const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function dateOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
@@ -119,68 +71,299 @@ function getWeekDays() {
   return days;
 }
 
-const weekLabels = ['ä¸€','äºŒ','ä¸‰','å››','äº”','å…­','æ—¥'];
+const weekLabels = ['Ò»','¶ş','Èı','ËÄ','Îå','Áù','ÈÕ'];
 
 function formatDate(d) {
-  const months = ['1æœˆ','2æœˆ','3æœˆ','4æœˆ','5æœˆ','6æœˆ','7æœˆ','8æœˆ','9æœˆ','10æœˆ','11æœˆ','12æœˆ'];
   const date = new Date(d);
-  return `${months[date.getMonth()]}${date.getDate()}æ—¥`;
+  return `${date.getMonth()+1}ÔÂ${date.getDate()}ÈÕ`;
 }
 
-// ===== åˆå§‹åŒ–æ—¥æœŸ =====
-function initDates() {
-  const today = new Date();
-  const dateStr = `${today.getMonth()+1}æœˆ${today.getDate()}æ—¥ Â· å‘¨${weekLabels[today.getDay()===0?6:today.getDay()-1]}`;
-  
-  document.querySelectorAll('.today-date').forEach(el => el.textContent = dateStr);
-
-  // å…»å¨ƒå¤©æ•°
-  const babyStart = loadData().babyStartDate || '2025-06-01';
-  const diff = Math.floor((today - new Date(babyStart)) / 86400000);
-  const badge = document.getElementById('dayBadge');
-  if (badge) badge.textContent = `è®°å½•ç¬¬ ${diff} å¤©`;
-
-  // è€ƒè¯•å¤©æ•°
-  const examDate = '2026-11-08';
-  const examDiff = Math.floor((new Date(examDate) - today) / 86400000);
-  const el = document.getElementById('examDays');
-  if (el) el.textContent = examDiff;
+function formatDateFull(d) {
+  const date = new Date(d);
+  const wk = weekLabels[date.getDay()===0?6:date.getDay()-1];
+  return `${date.getFullYear()}Äê${date.getMonth()+1}ÔÂ${date.getDate()}ÈÕ ÖÜ${wk}`;
 }
 
-// ===== å¯¼èˆªåˆ‡æ¢ =====
+// ===== µ¼º½ÇĞ»» =====
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const id = btn.dataset.id;
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    // æ›´æ–° active æŒ‰é’®é¢œè‰²
-    const colors = { yangwa: 'var(--orange)', kaosheng: 'var(--blue)', zixun: 'var(--green)', treehole: 'var(--pink)' };
-    btn.style.background = colors[id];
-    
+    const colors = { plan:'var(--yellow)', expense:'var(--teal)', yangwa:'var(--orange)', kaosheng:'var(--blue)', zixun:'var(--green)', treehole:'var(--pink)' };
+    btn.style.background = colors[id] || '';
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     document.getElementById(`panel-${id}`).classList.add('active');
   });
 });
 
-// ===== å…»å¨ƒå®è®° =====
-function addYangwa() {
-  const text = prompt('è®°å½•ä»Šå¤©å®è´çš„äº‹æƒ…ï¼š');
+// ===== ³õÊ¼»¯ÈÕÆÚ =====
+function initDates() {
+  const today = new Date();
+  const dateStr = formatDateFull(getToday());
+  document.querySelectorAll('.today-date').forEach(el => el.textContent = dateStr);
+  const babyStart = loadData().babyStartDate || '2025-06-01';
+  const badge = document.getElementById('dayBadge');
+  if (badge) badge.textContent = `¼ÇÂ¼µÚ ${Math.floor((today - new Date(babyStart)) / 86400000)} Ìì`;
+  const el = document.getElementById('examDays');
+  if (el) el.textContent = Math.floor((new Date('2026-11-08') - today) / 86400000);
+  document.getElementById('planDate')?.textContent && (document.getElementById('planDate').textContent = dateStr);
+  document.getElementById('planBadge')?.textContent && (document.getElementById('planBadge').textContent = 'Ã¿Ìì5¼şÊÂ');
+  const ed = document.getElementById('expenseDate');
+  if (ed) ed.textContent = dateStr;
+}
+
+// ==================== Ã¿ÈÕ¼Æ»® ====================
+const DEFAULT_TASKS = ['¶ÁÊé30·ÖÖÓ', 'ÔË¶¯30·ÖÖÓ', '¿ªĞÄ·ÅËÉ30·ÖÖÓ', 'ÍíÉÏ22:30Ö®Ç°Ë¯¾õ', '¹¤×÷Ì¨¼°ÈÕ¼Ç¼ÇÂ¼'];
+
+function ensureTodayPlan() {
+  const data = loadData();
+  const today = getToday();
+  if (!data.plans) data.plans = {};
+  if (!data.plans[today]) {
+    data.plans[today] = DEFAULT_TASKS.map(t => ({ text: t, done: false }));
+    saveData(data);
+  }
+  return data;
+}
+
+function addPlanTask() {
+  const text = prompt('ĞÂÔö´ı°ìÈÎÎñ£º');
   if (!text || !text.trim()) return;
-  
+  const data = ensureTodayPlan();
+  data.plans[getToday()].push({ text: text.trim(), done: false });
+  saveData(data);
+  renderPlan();
+}
+
+function togglePlanTask(index) {
+  const data = loadData();
+  const today = getToday();
+  if (data.plans && data.plans[today] && data.plans[today][index]) {
+    data.plans[today][index].done = !data.plans[today][index].done;
+    saveData(data);
+    renderPlan();
+  }
+}
+
+function deletePlanTask(index) {
+  const data = loadData();
+  const today = getToday();
+  if (data.plans && data.plans[today]) {
+    data.plans[today].splice(index, 1);
+    saveData(data);
+    renderPlan();
+  }
+}
+
+function renderPlan() {
+  ensureTodayPlan();
+  const data = loadData();
+  const today = getToday();
+  const tasks = data.plans[today] || [];
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+
+  document.getElementById('planTotal').textContent = total;
+  document.getElementById('planDone').textContent = done;
+  document.getElementById('planPercentNum').textContent = pct + '%';
+  document.getElementById('planProgressFill').style.width = pct + '%';
+
+  const list = document.getElementById('planTaskList');
+  list.innerHTML = tasks.map((t, i) => `
+    <div class="plan-task ${t.done ? 'checked' : ''}">
+      <span class="plan-checkbox" onclick="togglePlanTask(${i})">?</span>
+      <span class="plan-task-text">${t.text}</span>
+      <button class="del-btn" onclick="deletePlanTask(${i})">?</button>
+    </div>
+  `).join('');
+
+  renderPlanHistory();
+}
+
+let planOffset = 0;
+function planPrev() { planOffset++; renderPlanHistory(); }
+function planNext() { if (planOffset > 0) { planOffset--; renderPlanHistory(); } }
+
+function renderPlanHistory() {
+  const data = loadData();
+  const viewDate = dateOffset(-planOffset);
+  const isToday = viewDate === getToday();
+  document.getElementById('planHistoryDate').textContent = isToday ? '½ñÌì' : formatDate(viewDate);
+
+  const tasks = (data.plans && data.plans[viewDate]) || [];
+  const el = document.getElementById('planHistoryList');
+  if (tasks.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">¸ÃÈÕÎŞ¼Æ»®¼ÇÂ¼</div>';
+  } else {
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    el.innerHTML = tasks.map(t => `
+      <div class="history-task ${t.done ? 'done' : ''}">
+        <span class="mini-check">${t.done ? '?' : '?'}</span>
+        <span class="mini-text">${t.text}</span>
+      </div>
+    `).join('') + `<div class="history-stat">${done}/${total} Íê³É (${Math.round(done/total*100)}%)</div>`;
+  }
+}
+
+// ==================== Ïû·Ñ¼ÇÕË ====================
+const categoryIcons = { '²ÍÒû':'?', '¹ºÎï':'?', '½»Í¨':'?', '×¡·¿':'?', 'ÓéÀÖ':'?', '½ÌÓı':'?', 'Ò½ÁÆ':'?', 'ÈÕÓÃÆ·':'?', 'ÆäËû':'?' };
+
+function addExpense() {
+  const name = document.getElementById('expenseName').value.trim();
+  const amount = parseFloat(document.getElementById('expenseAmount').value);
+  const category = document.getElementById('expenseCategory').value;
+  if (!name) { alert('ÇëÌîĞ´Ïû·ÑÏîÄ¿'); return; }
+  if (!amount || amount <= 0) { alert('ÇëÌîĞ´½ğ¶î'); return; }
+
+  const data = loadData();
+  const today = getToday();
+  if (!data.expenses) data.expenses = {};
+  if (!data.expenses[today]) data.expenses[today] = [];
+
+  data.expenses[today].push({
+    name, amount: Math.round(amount*100)/100, category,
+    time: new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' })
+  });
+
+  saveData(data);
+  document.getElementById('expenseName').value = '';
+  document.getElementById('expenseAmount').value = '';
+  renderExpense();
+}
+
+function deleteExpenseItem(index) {
+  const data = loadData();
+  const today = getToday();
+  if (data.expenses && data.expenses[today]) {
+    data.expenses[today].splice(index, 1);
+    if (data.expenses[today].length === 0) delete data.expenses[today];
+    saveData(data);
+    renderExpense();
+  }
+}
+
+function renderExpense() {
+  const data = loadData();
+  const today = getToday();
+  const bills = (data.expenses && data.expenses[today]) || [];
+
+  // ½ñÈÕ×Ü¿ªÏú
+  const todayTotal = bills.reduce((s, b) => s + b.amount, 0);
+  document.getElementById('expenseTodayTotal').textContent = `?${todayTotal.toFixed(2)}`;
+
+  // ÔÂ¶ÈÀÛ¼Æ
+  const month = today.substring(0, 7);
+  let monthTotal = 0;
+  if (data.expenses) {
+    Object.keys(data.expenses).forEach(d => {
+      if (d.startsWith(month)) {
+        monthTotal += data.expenses[d].reduce((s, b) => s + b.amount, 0);
+      }
+    });
+  }
+  document.getElementById('expenseMonthTotal').textContent = `?${monthTotal.toFixed(2)}`;
+
+  // ·ÖÀà»ã×ÜÌõ
+  const catTotals = {};
+  bills.forEach(b => { catTotals[b.category] = (catTotals[b.category] || 0) + b.amount; });
+  const catBar = document.getElementById('expenseCategoryBar');
+  catBar.innerHTML = Object.entries(catTotals).map(([cat, amt]) =>
+    `<span class="cat-tag">${categoryIcons[cat]||'?'} ${cat} ?${amt.toFixed(0)}</span>`
+  ).join('');
+
+  // ½ñÈÕÕËµ¥Ã÷Ï¸
+  const billList = document.getElementById('expenseBillList');
+  const empty = document.getElementById('expenseBillEmpty');
+  if (bills.length === 0) {
+    billList.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    billList.innerHTML = bills.map((b, i) => `
+      <div class="bill-item">
+        <span class="bill-category">${categoryIcons[b.category]||'?'}</span>
+        <div class="bill-info">
+          <div class="bill-name">${b.name}</div>
+          <div class="bill-time">${b.time} ¡¤ ${b.category}</div>
+        </div>
+        <span class="bill-amount">?${b.amount.toFixed(2)}</span>
+        <button class="del-btn" onclick="deleteExpenseItem(${i})">?</button>
+      </div>
+    `).join('');
+  }
+
+  // ÔÂ¶È·ÖÀàÍ³¼Æ
+  renderExpenseMonthChart(data, month);
+
+  // ÀúÊ·ÕËµ¥
+  renderExpenseHistory();
+}
+
+function renderExpenseMonthChart(data, month) {
+  const catTotals = {};
+  if (data.expenses) {
+    Object.keys(data.expenses).forEach(d => {
+      if (d.startsWith(month)) {
+        data.expenses[d].forEach(b => { catTotals[b.category] = (catTotals[b.category] || 0) + b.amount; });
+      }
+    });
+  }
+  const max = Math.max(...Object.values(catTotals), 1);
+  const sorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+  const colors = { '²ÍÒû':'#3A86FF', '¹ºÎï':'#FF6B35', '½»Í¨':'#06D6A0', '×¡·¿':'#FFBE0B', 'ÓéÀÖ':'#FB5607', '½ÌÓı':'#00B4D8', 'Ò½ÁÆ':'#d04a4a', 'ÈÕÓÃÆ·':'#c46a00', 'ÆäËû':'#888' };
+  const chart = document.getElementById('expenseMonthChart');
+  if (sorted.length === 0) {
+    chart.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">±¾ÔÂÔİÎŞÏû·ÑÊı¾İ</div>';
+  } else {
+    chart.innerHTML = sorted.map(([cat, amt]) => `
+      <div class="chart-row">
+        <span class="chart-label">${categoryIcons[cat]||'?'} ${cat}</span>
+        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(amt/max*100)}%;background:${colors[cat]||'#888'}"></div></div>
+        <span class="chart-amount">?${amt.toFixed(0)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+let expenseOffset = 0;
+function expensePrev() { expenseOffset++; renderExpenseHistory(); }
+function expenseNext() { if (expenseOffset > 0) { expenseOffset--; renderExpenseHistory(); } }
+
+function renderExpenseHistory() {
+  const data = loadData();
+  const viewDate = dateOffset(-expenseOffset);
+  const isToday = viewDate === getToday();
+  document.getElementById('expenseHistoryDate').textContent = isToday ? '½ñÌì' : formatDate(viewDate);
+
+  const bills = (data.expenses && data.expenses[viewDate]) || [];
+  const el = document.getElementById('expenseHistoryBills');
+  if (bills.length === 0) {
+    el.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">¸ÃÈÕÎŞÏû·Ñ¼ÇÂ¼</div>';
+  } else {
+    const dayTotal = bills.reduce((s, b) => s + b.amount, 0);
+    el.innerHTML = bills.map(b => `
+      <div class="history-bill">
+        <span class="h-cat">${categoryIcons[b.category]||'?'}</span>
+        <span class="h-name">${b.name}</span>
+        <span class="h-amount">?${b.amount.toFixed(2)}</span>
+      </div>
+    `).join('') + `<div class="history-bill .h-total" style="font-size:13px;font-weight:800;color:#006d77;text-align:center;padding:10px;border-radius:10px;background:#e0f7fa;">µ±ÈÕºÏ¼Æ£º?${dayTotal.toFixed(2)}</div>`;
+  }
+}
+
+// ==================== ÑøÍŞÊµ¼Ç ====================
+function addYangwa() {
+  const text = prompt('¼ÇÂ¼½ñÌì±¦±´µÄÊÂÇé£º');
+  if (!text || !text.trim()) return;
   const data = loadData();
   const today = getToday();
   if (!data.yangwa) data.yangwa = {};
   if (!data.yangwa[today]) data.yangwa[today] = [];
-  
-  data.yangwa[today].push({
-    text: text.trim(),
-    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-    done: false
-  });
-  
-  saveData(data);
-  renderYangwa();
+  data.yangwa[today].push({ text: text.trim(), time: new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }), done: false });
+  saveData(data); renderYangwa();
 }
 
 function toggleYangwaItem(index) {
@@ -188,8 +371,7 @@ function toggleYangwaItem(index) {
   const today = getToday();
   if (data.yangwa && data.yangwa[today] && data.yangwa[today][index]) {
     data.yangwa[today][index].done = !data.yangwa[today][index].done;
-    saveData(data);
-    renderYangwa();
+    saveData(data); renderYangwa();
   }
 }
 
@@ -199,8 +381,7 @@ function deleteYangwaItem(index) {
   if (data.yangwa && data.yangwa[today]) {
     data.yangwa[today].splice(index, 1);
     if (data.yangwa[today].length === 0) delete data.yangwa[today];
-    saveData(data);
-    renderYangwa();
+    saveData(data); renderYangwa();
   }
 }
 
@@ -209,28 +390,18 @@ function renderYangwa() {
   const today = getToday();
   const list = document.getElementById('yangwaList');
   const empty = document.getElementById('yangwaEmpty');
-  
   const items = (data.yangwa && data.yangwa[today]) || [];
-  
-  if (items.length === 0) {
-    list.innerHTML = '';
-    empty.style.display = 'block';
-  } else {
+  if (items.length === 0) { list.innerHTML = ''; empty.style.display = 'block'; }
+  else {
     empty.style.display = 'none';
     list.innerHTML = items.map((item, i) => `
       <div class="yangwa-item">
-        <span class="cb ${item.done ? '' : 'unchecked'}" onclick="toggleYangwaItem(${i})">
-          ${item.done ? 'âœ“' : ''}
-        </span>
-        <div class="yangwa-item-content">
-          <div class="yangwa-item-text">${item.text}</div>
-          <div class="yangwa-item-time">${item.time}</div>
-        </div>
-        <button class="del-btn" onclick="deleteYangwaItem(${i})">âœ•</button>
+        <span class="cb ${item.done ? '' : 'unchecked'}" onclick="toggleYangwaItem(${i})">${item.done ? '?' : ''}</span>
+        <div class="yangwa-item-content"><div class="yangwa-item-text">${item.text}</div><div class="yangwa-item-time">${item.time}</div></div>
+        <button class="del-btn" onclick="deleteYangwaItem(${i})">?</button>
       </div>
     `).join('');
   }
-  
   renderWeekGrid();
 }
 
@@ -239,84 +410,53 @@ function renderWeekGrid() {
   const days = getWeekDays();
   const today = getToday();
   const grid = document.getElementById('weekGrid');
-  
   let html = weekLabels.map(l => `<div class="week-day header">${l}</div>`).join('');
-  
   days.forEach(d => {
     const hasRecord = data.yangwa && data.yangwa[d] && data.yangwa[d].length > 0;
     const isToday = d === today;
     const dayNum = new Date(d).getDate();
-    
-    if (isToday) {
-      html += `<div class="week-day today">${dayNum}</div>`;
-    } else if (hasRecord) {
-      html += `<div class="week-day has-record">${dayNum}</div>`;
-    } else {
-      html += `<div class="week-day empty">${dayNum}</div>`;
-    }
+    if (isToday) html += `<div class="week-day today">${dayNum}</div>`;
+    else if (hasRecord) html += `<div class="week-day has-record">${dayNum}</div>`;
+    else html += `<div class="week-day empty">${dayNum}</div>`;
   });
-  
   grid.innerHTML = html;
 }
 
-// ===== ç¨åŠ¡è€ƒè¯ =====
+// ==================== Ë°Îñ¿¼Ö¤ ====================
 function recordStudy(subject) {
   const input = document.getElementById(`${subject}Input`);
   const text = input.value.trim();
-  if (!text) { alert('è¯·è¾“å…¥å­¦ä¹ å†…å®¹'); return; }
-  
+  if (!text) { alert('ÇëÊäÈëÑ§Ï°ÄÚÈİ'); return; }
   const data = loadData();
   const today = getToday();
   if (!data.study) data.study = {};
   if (!data.study[subject]) data.study[subject] = {};
   if (!data.study[subject][today]) data.study[subject][today] = [];
-  
-  data.study[subject][today].push({
-    text: text,
-    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-  });
-  
-  // æ ‡è®°ä»Šæ—¥å·²å®Œæˆ
+  data.study[subject][today].push({ text, time: new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }) });
   data.studyStatus = data.studyStatus || {};
   data.studyStatus[today] = data.studyStatus[today] || {};
   data.studyStatus[today][subject] = true;
-  
   saveData(data);
   input.value = '';
-  renderStudy(subject);
-  updateSubjectStatus(subject);
-  renderStudyCalendar();
+  renderStudy(subject); updateSubjectStatus(subject); renderStudyCalendar();
 }
 
 function updateSubjectStatus(subject) {
   const data = loadData();
   const today = getToday();
   const isDone = data.studyStatus && data.studyStatus[today] && data.studyStatus[today][subject];
-  
   const statusEl = document.getElementById(`${subject}Status`);
-  if (statusEl) {
-    statusEl.className = `subject-status ${isDone ? 'complete' : 'incomplete'}`;
-    statusEl.textContent = isDone ? 'â¬¤ å·²å®Œæˆ' : 'â¬¤ æœªå®Œæˆ';
-  }
-  
-  // æ›´æ–°è¿›åº¦
+  if (statusEl) { statusEl.className = `subject-status ${isDone ? 'complete' : 'incomplete'}`; statusEl.textContent = isDone ? '? ÒÑÍê³É' : '? Î´Íê³É'; }
   updateProgress(subject);
 }
 
 function updateProgress(subject) {
   const data = loadData();
-  const totalDays = 60; // å‡è®¾60å¤©å­¦ä¹ è®¡åˆ’
-  
   let studiedDays = 0;
-  if (data.study && data.study[subject]) {
-    studiedDays = Object.keys(data.study[subject]).length;
-  }
-  
-  const percent = Math.min(Math.round(studiedDays / totalDays * 100), 100);
-  
+  if (data.study && data.study[subject]) studiedDays = Object.keys(data.study[subject]).length;
+  const percent = Math.min(Math.round(studiedDays / 60 * 100), 100);
   const fillEl = document.getElementById(`${subject}Progress`);
   const textEl = document.getElementById(`${subject}Percent`);
-  
   if (fillEl) fillEl.style.width = `${percent}%`;
   if (textEl) textEl.textContent = `${percent}%`;
 }
@@ -324,28 +464,18 @@ function updateProgress(subject) {
 function renderStudy(subject) {
   const data = loadData();
   const historyEl = document.getElementById(`${subject}History`);
-  
   if (!data.study || !data.study[subject]) {
-    historyEl.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">è¿˜æ²¡æœ‰å­¦ä¹ è®°å½•</div>';
-    return;
+    historyEl.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">»¹Ã»ÓĞÑ§Ï°¼ÇÂ¼</div>'; return;
   }
-  
-  // æœ€è¿‘5å¤©çš„è®°å½•
   const entries = [];
   const dates = Object.keys(data.study[subject]).sort().reverse().slice(0, 5);
-  
   dates.forEach(date => {
     data.study[subject][date].forEach(item => {
       const isDone = data.studyStatus && data.studyStatus[date] && data.studyStatus[date][subject];
       entries.push({ text: item.text, date: formatDate(date), done: isDone });
     });
   });
-  
-  if (entries.length === 0) {
-    historyEl.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">è¿˜æ²¡æœ‰å­¦ä¹ è®°å½•</div>';
-    return;
-  }
-  
+  if (entries.length === 0) { historyEl.innerHTML = '<div class="empty-state" style="padding:10px;font-size:12px;color:#aaa;">»¹Ã»ÓĞÑ§Ï°¼ÇÂ¼</div>'; return; }
   historyEl.innerHTML = entries.map(e => `
     <div class="study-entry">
       <span class="status-dot ${e.done ? 'done' : 'pending'}"></span>
@@ -359,149 +489,67 @@ function renderStudyCalendar() {
   const data = loadData();
   const cal = document.getElementById('studyCalendar');
   if (!cal) return;
-  
   const d = new Date();
   const dayOfWeek = d.getDay() === 0 ? 7 : d.getDay();
-  const monday = new Date(d);
-  monday.setDate(d.getDate() - dayOfWeek + 1);
-  
-  // å†å¾€å‰2å‘¨ + å½“å‰å‘¨
-  const startMonday = new Date(monday);
-  startMonday.setDate(monday.getDate() - 14);
-  
+  const monday = new Date(d); monday.setDate(d.getDate() - dayOfWeek + 1);
+  const startMonday = new Date(monday); startMonday.setDate(monday.getDate() - 14);
   let html = weekLabels.map(l => `<div class="cal-cell header">${l}</div>`).join('');
-  
   for (let w = 0; w < 3; w++) {
     for (let i = 0; i < 7; i++) {
-      const dd = new Date(startMonday);
-      dd.setDate(startMonday.getDate() + w * 7 + i);
+      const dd = new Date(startMonday); dd.setDate(startMonday.getDate() + w*7 + i);
       const dateStr = `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
-      const dayNum = dd.getDate();
       const isToday = dateStr === getToday();
-      
-      // æ£€æŸ¥å½“å¤©ä¸‰ç§‘å®Œæˆæƒ…å†µ
-      const lawDone = data.studyStatus && data.studyStatus[dateStr] && data.studyStatus[dateStr].law;
-      const financeDone = data.studyStatus && data.studyStatus[dateStr] && data.studyStatus[dateStr].finance;
-      const practiceDone = data.studyStatus && data.studyStatus[dateStr] && data.studyStatus[dateStr].practice;
-      
+      const lawDone = data.studyStatus?.[dateStr]?.law;
+      const financeDone = data.studyStatus?.[dateStr]?.finance;
+      const practiceDone = data.studyStatus?.[dateStr]?.practice;
       const doneCount = [lawDone, financeDone, practiceDone].filter(Boolean).length;
-      
       let cls = 'none';
       if (doneCount === 3) cls = 'all-done';
       else if (doneCount > 0) cls = 'partial';
-      
       if (isToday) cls += ' today';
-      
-      html += `<div class="cal-cell ${cls}">${dayNum}</div>`;
+      html += `<div class="cal-cell ${cls}">${dd.getDate()}</div>`;
     }
   }
-  
   cal.innerHTML = html;
 }
 
-// ===== æ¯æ—¥å’¨è¯¢ =====
-function loadNews() {
-  fetchStockNews();
-  fetchFinanceNews();
-  fetchAINews();
-}
+// ==================== Ã¿ÈÕ×ÉÑ¯ ====================
+function loadNews() { fetchStockNews(); fetchFinanceNews(); fetchAINews(); }
+async function fetchStockNews() { document.getElementById('stockNews').innerHTML = getFallbackStockNews(); }
+async function fetchFinanceNews() { document.getElementById('financeNews').innerHTML = getFallbackFinanceNews(); }
+async function fetchAINews() { document.getElementById('aiNews').innerHTML = getFallbackAINews(); }
 
-async function fetchStockNews() {
-  const el = document.getElementById('stockNews');
-  try {
-    const resp = await fetch('https://newsapi.org/v2/top-headlines?country=cn&category=business&pageSize=5&apiKey=demo');
-    // demo key won't work, use fallback
-    el.innerHTML = getFallbackStockNews();
-  } catch {
-    el.innerHTML = getFallbackStockNews();
-  }
-}
-
-async function fetchFinanceNews() {
-  const el = document.getElementById('financeNews');
-  try {
-    el.innerHTML = getFallbackFinanceNews();
-  } catch {
-    el.innerHTML = getFallbackFinanceNews();
-  }
-}
-
-async function fetchAINews() {
-  const el = document.getElementById('aiNews');
-  try {
-    // å°è¯•çœŸå®æœç´¢
-    const searchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://news.google.com/search?q=AI+äººå·¥æ™ºèƒ½&hl=zh-CN&gl=CN&ceid=CN:zh-Hans')}`;
-    const resp = await fetch(searchUrl);
-    if (resp.ok) {
-      const text = await resp.text();
-      // ç®€åŒ–è§£æï¼Œä½¿ç”¨ fallback æ›´å¯é 
-    }
-    el.innerHTML = getFallbackAINews();
-  } catch {
-    el.innerHTML = getFallbackAINews();
-  }
-}
-
-// å¤‡ç”¨æ–°é—»æ•°æ®ï¼ˆæ¨¡æ‹Ÿä»Šæ—¥å®æ—¶èµ„è®¯ï¼‰
 function getFallbackStockNews() {
-  const today = formatDate(getToday());
-  return [
-    { title: 'æ²ªæ·±ä¸¤å¸‚æˆäº¤é‡çªç ´ä¸‡äº¿ï¼ŒåŒ—å‘èµ„é‡‘å‡€æµå…¥56äº¿', source: 'ä¸œæ–¹è´¢å¯Œ', tag: 'up', tagText: 'â†‘ æ¶¨' },
-    { title: 'åŠå¯¼ä½“æ¿å—é›†ä½“æ‹‰å‡ï¼Œä¸­èŠ¯å›½é™…æ¶¨è¶…5%', source: 'åŒèŠ±é¡º', tag: 'up', tagText: 'â†‘ æ¶¨' },
-    { title: 'ç™½é…’æ¿å—å›è°ƒï¼Œè´µå·èŒ…å°è·Œ2.3%', source: 'è¯åˆ¸æ—¶æŠ¥', tag: 'down', tagText: 'â†“ è·Œ' },
-    { title: 'å¤®è¡Œå®£å¸ƒé™å‡†0.25ä¸ªç™¾åˆ†ç‚¹ï¼Œé‡Šæ”¾é•¿æœŸèµ„é‡‘', source: 'è´¢è”ç¤¾', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'æ–°èƒ½æºè½¦ä¼6æœˆäº¤ä»˜æ•°æ®å…¬å¸ƒï¼Œæ¯”äºšè¿ªé¢†è·‘', source: 'ç¬¬ä¸€è´¢ç»', tag: 'up', tagText: 'â†‘ æ¶¨' },
-  ].map(n => `
-    <div class="news-item">
-      <div class="news-item-title">${n.title}</div>
-      <div class="news-item-source">${n.source} Â· ${today} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div>
-    </div>
-  `).join('');
+  const t = formatDate(getToday());
+  return [{ title:'»¦ÉîÁ½ÊĞ³É½»Á¿Í»ÆÆÍòÒÚ£¬±±Ïò×Ê½ğ¾»Á÷Èë56ÒÚ', source:'¶«·½²Æ¸»', tag:'up', tagText:'¡ü ÕÇ' },
+    { title:'°ëµ¼Ìå°å¿é¼¯ÌåÀ­Éı£¬ÖĞĞ¾¹ú¼ÊÕÇ³¬5%', source:'Í¬»¨Ë³', tag:'up', tagText:'¡ü ÕÇ' },
+    { title:'°×¾Æ°å¿é»Øµ÷£¬¹óÖİÃ©Ì¨µø2.3%', source:'Ö¤È¯Ê±±¨', tag:'down', tagText:'¡ı µø' },
+    { title:'ÑëĞĞĞû²¼½µ×¼0.25¸ö°Ù·Öµã£¬ÊÍ·Å³¤ÆÚ×Ê½ğ', source:'²ÆÁªÉç', tag:'hot', tagText:'? ÈÈ' },
+    { title:'ĞÂÄÜÔ´³µÆó6ÔÂ½»¸¶Êı¾İ¹«²¼£¬±ÈÑÇµÏÁìÅÜ', source:'µÚÒ»²Æ¾­', tag:'up', tagText:'¡ü ÕÇ' }]
+    .map(n => `<div class="news-item"><div class="news-item-title">${n.title}</div><div class="news-item-source">${n.source} ¡¤ ${t} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div></div>`).join('');
 }
-
 function getFallbackFinanceNews() {
-  const today = formatDate(getToday());
-  return [
-    { title: 'è´¢æ”¿éƒ¨å‘å¸ƒ2026å¹´ä¸ŠåŠå¹´è´¢æ”¿æ”¶æ”¯æƒ…å†µ', source: 'è´¢æ”¿éƒ¨', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'ä¸ªäººæ‰€å¾—ç¨ä¸“é¡¹é™„åŠ æ‰£é™¤æ ‡å‡†æé«˜ï¼Œ7æœˆèµ·å®æ–½', source: 'å›½å®¶ç¨åŠ¡æ€»å±€', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'å¤šåœ°å‡ºå°ç¨³ç»æµæ”¿ç­–ï¼ŒåŠ å¤§åŸºç¡€è®¾æ–½æŠ•èµ„', source: 'ç»æµæ—¥æŠ¥', tag: 'up', tagText: 'â†‘ åˆ©å¥½' },
-    { title: 'ç¨åŠ¡å¸ˆè€ƒè¯•æŠ¥åæˆªæ­¢ï¼Œå…¨å›½æŠ¥è€ƒäººæ•°åˆ›æ–°é«˜', source: 'ä¸­ç¨å', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'äººæ°‘å¸æ±‡ç‡ç¨³ä¸­æœ‰å‡ï¼Œå¤–æ±‡å‚¨å¤‡æŒç»­å¢é•¿', source: 'å¤®è¡Œ', tag: 'up', tagText: 'â†‘ ç¨³' },
-  ].map(n => `
-    <div class="news-item">
-      <div class="news-item-title">${n.title}</div>
-      <div class="news-item-source">${n.source} Â· ${today} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div>
-    </div>
-  `).join('');
+  const t = formatDate(getToday());
+  return [{ title:'²ÆÕş²¿·¢²¼2026ÄêÉÏ°ëÄê²ÆÕşÊÕÖ§Çé¿ö', source:'²ÆÕş²¿', tag:'hot', tagText:'? ÈÈ' },
+    { title:'¸öÈËËùµÃË°×¨Ïî¸½¼Ó¿Û³ı±ê×¼Ìá¸ß£¬7ÔÂÆğÊµÊ©', source:'¹ú¼ÒË°Îñ×Ü¾Ö', tag:'hot', tagText:'? ÈÈ' },
+    { title:'¶àµØ³öÌ¨ÎÈ¾­¼ÃÕş²ß£¬¼Ó´ó»ù´¡ÉèÊ©Í¶×Ê', source:'¾­¼ÃÈÕ±¨', tag:'up', tagText:'¡ü ÀûºÃ' },
+    { title:'Ë°ÎñÊ¦¿¼ÊÔ±¨Ãû½ØÖ¹£¬È«¹ú±¨¿¼ÈËÊı´´ĞÂ¸ß', source:'ÖĞË°Ğ­', tag:'hot', tagText:'? ÈÈ' },
+    { title:'ÈËÃñ±Ò»ãÂÊÎÈÖĞÓĞÉı£¬Íâ»ã´¢±¸³ÖĞøÔö³¤', source:'ÑëĞĞ', tag:'up', tagText:'¡ü ÎÈ' }]
+    .map(n => `<div class="news-item"><div class="news-item-title">${n.title}</div><div class="news-item-source">${n.source} ¡¤ ${t} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div></div>`).join('');
 }
-
 function getFallbackAINews() {
-  const today = formatDate(getToday());
-  return [
-    { title: 'OpenAIå‘å¸ƒGPT-5ï¼Œå¤šæ¨¡æ€èƒ½åŠ›å¤§å¹…æå‡', source: 'TechCrunch', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'ç™¾åº¦æ–‡å¿ƒå¤§æ¨¡å‹4.5å‘å¸ƒï¼Œä¸­æ–‡ç†è§£èƒ½åŠ›è¶…GPT-4', source: 'ç™¾åº¦AI', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'AIè¾…åŠ©ç¨åŠ¡å®¡è®¡ç³»ç»Ÿè¯•ç‚¹æˆåŠŸï¼Œæ•ˆç‡æå‡300%', source: 'ç§‘æŠ€æ—¥æŠ¥', tag: 'up', tagText: 'â†‘ æ–°' },
-    { title: 'æ¬§ç›ŸAIæ³•æ¡ˆæ­£å¼ç”Ÿæ•ˆï¼Œå…¨çƒAIç›‘ç®¡è¿›å…¥æ–°é˜¶æ®µ', source: 'è·¯é€ç¤¾', tag: 'hot', tagText: 'ğŸ”¥ çƒ­' },
-    { title: 'å›½å†…é¦–ä¸ªAIè´¢åŠ¡åˆ†æå¸ˆè®¤è¯æ¨å‡º', source: 'ä¸­å›½AIåä¼š', tag: 'up', tagText: 'â†‘ æ–°' },
-  ].map(n => `
-    <div class="news-item">
-      <div class="news-item-title">${n.title}</div>
-      <div class="news-item-source">${n.source} Â· ${today} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div>
-    </div>
-  `).join('');
+  const t = formatDate(getToday());
+  return [{ title:'OpenAI·¢²¼GPT-5£¬¶àÄ£Ì¬ÄÜÁ¦´ó·ùÌáÉı', source:'TechCrunch', tag:'hot', tagText:'? ÈÈ' },
+    { title:'°Ù¶ÈÎÄĞÄ´óÄ£ĞÍ4.5·¢²¼£¬ÖĞÎÄÀí½âÄÜÁ¦³¬GPT-4', source:'°Ù¶ÈAI', tag:'hot', tagText:'? ÈÈ' },
+    { title:'AI¸¨ÖúË°ÎñÉó¼ÆÏµÍ³ÊÔµã³É¹¦£¬Ğ§ÂÊÌáÉı300%', source:'¿Æ¼¼ÈÕ±¨', tag:'up', tagText:'¡ü ĞÂ' },
+    { title:'Å·ÃËAI·¨°¸ÕıÊ½ÉúĞ§£¬È«ÇòAI¼à¹Ü½øÈëĞÂ½×¶Î', source:'Â·Í¸Éç', tag:'hot', tagText:'? ÈÈ' },
+    { title:'¹úÄÚÊ×¸öAI²ÆÎñ·ÖÎöÊ¦ÈÏÖ¤ÍÆ³ö', source:'ÖĞ¹úAIĞ­»á', tag:'up', tagText:'¡ü ĞÂ' }]
+    .map(n => `<div class="news-item"><div class="news-item-title">${n.title}</div><div class="news-item-source">${n.source} ¡¤ ${t} <span class="news-item-tag ${n.tag}">${n.tagText}</span></div></div>`).join('');
 }
+function refreshNews() { document.querySelectorAll('.news-list').forEach(el => el.innerHTML = '<div class="news-loading">? Ë¢ĞÂÖĞ...</div>'); setTimeout(loadNews, 800); }
 
-function refreshNews() {
-  document.querySelectorAll('.news-list').forEach(el => {
-    el.innerHTML = '<div class="news-loading">ğŸ”„ åˆ·æ–°ä¸­...</div>';
-  });
-  setTimeout(loadNews, 800);
-}
-
-// ===== æ ‘æ´ =====
+// ==================== Ê÷¶´ ====================
 let selectedMood = '';
-
-// å¿ƒæƒ…æ ‡ç­¾é€‰æ‹©
 document.querySelectorAll('.hole-tag').forEach(tag => {
   tag.addEventListener('click', () => {
     document.querySelectorAll('.hole-tag').forEach(t => t.classList.remove('active'));
@@ -510,65 +558,40 @@ document.querySelectorAll('.hole-tag').forEach(tag => {
   });
 });
 
-const moodEmojis = {
-  'å¼€å¿ƒ': 'ğŸ˜Š', 'éš¾è¿‡': 'ğŸ˜¢', 'ç„¦è™‘': 'ğŸ˜°',
-  'æ„¤æ€’': 'ğŸ˜¡', 'è¿·èŒ«': 'ğŸ˜¶', 'æ„Ÿæ©': 'ğŸ¥°'
-};
-
-// æ ‘æ´å›ä¿¡æ¨¡æ¿
+const moodEmojis = { '¿ªĞÄ':'?', 'ÄÑ¹ı':'?', '½¹ÂÇ':'?', '·ßÅ­':'?', 'ÃÔÃ£':'?', '¸Ğ¶÷':'?' };
 const replyTemplates = {
-  'å¼€å¿ƒ': 'çœ‹åˆ°ä½ ä»Šå¤©å¿ƒæƒ…ä¸é”™ï¼ŒçœŸæ›¿ä½ é«˜å…´ï¼å¼€å¿ƒçš„æ—¥å­å€¼å¾—è®°ä½ï¼Œç»§ç»­åŠ æ²¹å‘€~ ğŸŒ¸',
-  'éš¾è¿‡': 'éš¾è¿‡çš„æ—¶å€™ï¼Œå°±è®©è‡ªå·±éš¾è¿‡ä¸€ä¼šå„¿ï¼Œæ²¡å…³ç³»ã€‚æ ‘æ´æ°¸è¿œåœ¨è¿™é‡Œé™ªç€ä½ ã€‚æ˜å¤©ä¼šæ˜¯æ–°çš„ä¸€å¤©~ ğŸ’›',
-  'ç„¦è™‘': 'ç„¦è™‘è¯´æ˜ä½ åœ¨è®¤çœŸå¯¹å¾…ç”Ÿæ´»ã€‚æ·±å‘¼å¸ï¼Œä¸€æ­¥ä¸€æ­¥æ¥ï¼Œä½ æ¯”ä½ æƒ³è±¡çš„æ›´å¼ºå¤§~ ğŸŒ¿',
-  'æ„¤æ€’': 'ç”Ÿæ°”æ˜¯æ­£å¸¸çš„æƒ…ç»ªï¼Œå…è®¸è‡ªå·±æ„Ÿå—å®ƒã€‚ä¸è¿‡åˆ«å¿˜äº†ï¼Œä½ å€¼å¾—æ‹¥æœ‰å¹³é™~ ğŸƒ',
-  'è¿·èŒ«': 'è¿·èŒ«çš„æ—¶å€™ï¼Œä¸å¦¨åœä¸‹æ¥æƒ³æƒ³ä»€ä¹ˆå¯¹ä½ æœ€é‡è¦ã€‚ç­”æ¡ˆä¼šæ…¢æ…¢å‡ºç°çš„~ ğŸŒˆ',
-  'æ„Ÿæ©': 'æ‡‚å¾—æ„Ÿæ©çš„ä½ ï¼Œå†…å¿ƒä¸€å®šå¾ˆå¯Œè¶³ã€‚è¿™äº›æ¸©æš–çš„ç¬é—´ä¼šç…§äº®ä½ çš„æ¯ä¸€å¤©~ â˜€ï¸',
-  '': 'è°¢è°¢ä½ æ¥æ ‘æ´å€¾è¯‰ã€‚æ— è®ºä»Šå¤©ç»å†äº†ä»€ä¹ˆï¼Œä½ éƒ½ä¸æ˜¯ä¸€ä¸ªäºº~ ğŸŒ³'
+  '¿ªĞÄ':'¿´µ½Äã½ñÌìĞÄÇé²»´í£¬ÕæÌæÄã¸ßĞË£¡¿ªĞÄµÄÈÕ×ÓÖµµÃ¼Ç×¡£¬¼ÌĞø¼ÓÓÍÑ½~ ?',
+  'ÄÑ¹ı':'ÄÑ¹ıµÄÊ±ºò£¬¾ÍÈÃ×Ô¼ºÄÑ¹ıÒ»»á¶ù£¬Ã»¹ØÏµ¡£Ê÷¶´ÓÀÔ¶ÔÚÕâÀïÅã×ÅÄã¡£Ã÷Ìì»áÊÇĞÂµÄÒ»Ìì~ ?',
+  '½¹ÂÇ':'½¹ÂÇËµÃ÷ÄãÔÚÈÏÕæ¶Ô´ıÉú»î¡£ÉîºôÎü£¬Ò»²½Ò»²½À´£¬Äã±ÈÄãÏëÏóµÄ¸üÇ¿´ó~ ?',
+  '·ßÅ­':'ÉúÆøÊÇÕı³£µÄÇéĞ÷£¬ÔÊĞí×Ô¼º¸ĞÊÜËü¡£²»¹ı±ğÍüÁË£¬ÄãÖµµÃÓµÓĞÆ½¾²~ ?',
+  'ÃÔÃ£':'ÃÔÃ£µÄÊ±ºò£¬²»·ÁÍ£ÏÂÀ´ÏëÏëÊ²Ã´¶ÔÄã×îÖØÒª¡£´ğ°¸»áÂıÂı³öÏÖµÄ~ ?',
+  '¸Ğ¶÷':'¶®µÃ¸Ğ¶÷µÄÄã£¬ÄÚĞÄÒ»¶¨ºÜ¸»×ã¡£ÕâĞ©ÎÂÅ¯µÄË²¼ä»áÕÕÁÁÄãµÄÃ¿Ò»Ìì~ ??',
+  '':'Ğ»Ğ»ÄãÀ´Ê÷¶´ÇãËß¡£ÎŞÂÛ½ñÌì¾­ÀúÁËÊ²Ã´£¬Äã¶¼²»ÊÇÒ»¸öÈË~ ?'
 };
 
 function submitTreehole() {
   const textarea = document.getElementById('holeTextarea');
   const text = textarea.value.trim();
-  if (!text) { alert('è¯·å…ˆå†™ä¸‹ä½ çš„å¿ƒäº‹'); return; }
-  
+  if (!text) { alert('ÇëÏÈĞ´ÏÂÄãµÄĞÄÊÂ'); return; }
   const data = loadData();
   if (!data.treehole) data.treehole = [];
-  
   const mood = selectedMood || '';
-  const emoji = moodEmojis[mood] || 'ğŸŒ¿';
-  
-  data.treehole.push({
-    text: text,
-    mood: mood,
-    emoji: emoji,
-    time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-    date: getToday(),
-    reply: replyTemplates[mood] || replyTemplates['']
-  });
-  
+  const emoji = moodEmojis[mood] || '?';
+  data.treehole.push({ text, mood, emoji, time: new Date().toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' }), date: getToday(), reply: replyTemplates[mood] || replyTemplates[''] });
   saveData(data);
-  textarea.value = '';
-  selectedMood = '';
+  textarea.value = ''; selectedMood = '';
   document.querySelectorAll('.hole-tag').forEach(t => t.classList.remove('active'));
-  
   renderTreehole();
 }
 
 function deleteTreeholeItem(index) {
   const data = loadData();
-  if (data.treehole) {
-    data.treehole.splice(index, 1);
-    saveData(data);
-    renderTreehole();
-  }
+  if (data.treehole) { data.treehole.splice(index, 1); saveData(data); renderTreehole(); }
 }
 
 function clearTreehole() {
-  if (!confirm('ç¡®å®šè¦æ¸…ç©ºæ‰€æœ‰å¿ƒäº‹è®°å½•å—ï¼Ÿ')) return;
-  const data = loadData();
-  data.treehole = [];
-  saveData(data);
-  renderTreehole();
+  if (!confirm('È·¶¨ÒªÇå¿ÕËùÓĞĞÄÊÂ¼ÇÂ¼Âğ£¿')) return;
+  const data = loadData(); data.treehole = []; saveData(data); renderTreehole();
 }
 
 function renderTreehole() {
@@ -577,65 +600,36 @@ function renderTreehole() {
   const recordsEl = document.getElementById('holeRecords');
   const emptyEl = document.getElementById('holeEmpty');
   const replyEl = document.getElementById('holeReply');
-  
   if (records.length === 0) {
-    recordsEl.innerHTML = '';
-    emptyEl.style.display = 'block';
-    replyEl.innerHTML = '<div class="empty-state"><div class="empty-icon">ğŸ’Œ</div><p>æŠ•é€’å¿ƒäº‹åï¼Œæ ‘æ´ä¼šç»™ä½ æ¸©æš–çš„å›ä¿¡</p></div>';
+    recordsEl.innerHTML = ''; emptyEl.style.display = 'block';
+    replyEl.innerHTML = '<div class="empty-state"><div class="empty-icon">?</div><p>Í¶µİĞÄÊÂºó£¬Ê÷¶´»á¸øÄãÎÂÅ¯µÄ»ØĞÅ</p></div>';
   } else {
     emptyEl.style.display = 'none';
-    
-    // æ˜¾ç¤ºæœ€è¿‘ä¸€æ¡çš„å›ä¿¡
     const latest = records[records.length - 1];
-    replyEl.innerHTML = `
-      <div class="reply-content">
-        <div class="reply-text">${latest.reply}</div>
-        <div class="reply-date">${latest.emoji} ${formatDate(latest.date)} ${latest.time}</div>
-      </div>
-    `;
-    
-    // æ˜¾ç¤ºæ‰€æœ‰è®°å½•ï¼ˆæœ€æ–°åœ¨å‰ï¼‰
+    replyEl.innerHTML = `<div class="reply-content"><div class="reply-text">${latest.reply}</div><div class="reply-date">${latest.emoji} ${formatDate(latest.date)} ${latest.time}</div></div>`;
     recordsEl.innerHTML = records.map((r, i) => `
       <div class="hole-record">
         <span class="hole-record-mood">${r.emoji}</span>
-        <div class="hole-record-content">
-          <div class="hole-record-text">${r.text}</div>
-          <div class="hole-record-time">${formatDate(r.date)} ${r.time} Â· ${r.mood || 'æœªæ ‡è®°'}</div>
-        </div>
-        <button class="del-btn" onclick="deleteTreeholeItem(${i})">âœ•</button>
+        <div class="hole-record-content"><div class="hole-record-text">${r.text}</div><div class="hole-record-time">${formatDate(r.date)} ${r.time} ¡¤ ${r.mood || 'Î´±ê¼Ç'}</div></div>
+        <button class="del-btn" onclick="deleteTreeholeItem(${i})">?</button>
       </div>
     `).reverse().join('');
   }
 }
 
-// ===== åˆå§‹åŒ– =====
+// ==================== ³õÊ¼»¯ ====================
 function init() {
   initDates();
+  renderPlan();
+  renderExpense();
   renderYangwa();
-  
-  // è€ƒè¯
-  ['law', 'finance', 'practice'].forEach(subject => {
-    renderStudy(subject);
-    updateSubjectStatus(subject);
-    updateProgress(subject);
-  });
+  ['law','finance','practice'].forEach(s => { renderStudy(s); updateSubjectStatus(s); updateProgress(s); });
   renderStudyCalendar();
-  
-  // å’¨è¯¢
   loadNews();
-  
-  // æ ‘æ´
   renderTreehole();
 }
 
-// é¡µé¢åŠ è½½å®Œæˆååˆå§‹åŒ–
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
 
-// ===== Service Worker æ³¨å†Œ =====
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

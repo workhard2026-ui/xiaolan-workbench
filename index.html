@@ -23,7 +23,15 @@
       <div class="brand-name">小兰的工作台</div>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-btn active" data-id="yangwa">
+      <button class="nav-btn active" data-id="plan">
+        <span class="nav-dot yellow"></span>
+        <span>每日计划</span>
+      </button>
+      <button class="nav-btn" data-id="expense">
+        <span class="nav-dot teal"></span>
+        <span>消费记账</span>
+      </button>
+      <button class="nav-btn" data-id="yangwa">
         <span class="nav-dot orange"></span>
         <span>养娃实记</span>
       </button>
@@ -45,8 +53,123 @@
   <!-- 主内容 -->
   <main class="content">
 
+    <!-- ===== 每日计划 ===== -->
+    <section class="panel active" id="panel-plan">
+      <header class="panel-header yellow">
+        <h1>📋 每日计划</h1>
+        <p>每天进步一点点</p>
+        <div class="date-bar">
+          <span class="today-date" id="planDate"></span>
+          <span class="day-badge" id="planBadge"></span>
+        </div>
+      </header>
+
+      <div class="card plan-stats">
+        <div class="plan-stat-row">
+          <div class="plan-stat-box total"><div class="plan-stat-num" id="planTotal">0</div><div class="plan-stat-lbl">总任务</div></div>
+          <div class="plan-stat-box done-num"><div class="plan-stat-num" id="planDone">0</div><div class="plan-stat-lbl">已完成</div></div>
+          <div class="plan-stat-box percent"><div class="plan-stat-num" id="planPercentNum">0%</div><div class="plan-stat-lbl">完成率</div></div>
+        </div>
+        <div class="plan-progress-bar"><div class="plan-progress-fill" id="planProgressFill"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>✅ 今日待办</span>
+          <button class="btn-add" onclick="addPlanTask()">+ 新增</button>
+        </div>
+        <div class="plan-task-list" id="planTaskList"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📖 历史计划</span>
+          <div class="history-nav">
+            <button class="btn-history" onclick="planPrev()">◀</button>
+            <span class="history-date" id="planHistoryDate">今天</span>
+            <button class="btn-history" onclick="planNext()">▶</button>
+          </div>
+        </div>
+        <div class="plan-history-list" id="planHistoryList"></div>
+      </div>
+    </section>
+
+    <!-- ===== 消费记账 ===== -->
+    <section class="panel" id="panel-expense">
+      <header class="panel-header teal">
+        <h1>🧾 消费记账</h1>
+        <p>理性消费 · 好好规划沪漂生活</p>
+        <div class="date-bar">
+          <span class="today-date" id="expenseDate"></span>
+        </div>
+      </header>
+
+      <div class="expense-tip">
+        🌿 慢慢养成低物欲习惯，理性消费，好好规划沪漂生活
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📝 今日支出录入</span></div>
+        <div class="expense-form">
+          <input type="text" class="expense-input name" id="expenseName" placeholder="消费项目（如：午餐）" />
+          <input type="number" class="expense-input amount" id="expenseAmount" placeholder="金额" step="0.01" />
+          <select class="expense-select" id="expenseCategory">
+            <option value="餐饮">🍜 餐饮</option>
+            <option value="购物">🛒 购物</option>
+            <option value="交通">🚌 交通</option>
+            <option value="住房">🏠 住房</option>
+            <option value="娱乐">🎮 娱乐</option>
+            <option value="教育">📚 教育</option>
+            <option value="医疗">💊 医疗</option>
+            <option value="日用品">🧴 日用品</option>
+            <option value="其他">📦 其他</option>
+          </select>
+          <button class="btn-expense-add" onclick="addExpense()">记一笔</button>
+        </div>
+      </div>
+
+      <div class="card expense-summary-card">
+        <div class="card-title"><span>💰 今日总开销</span></div>
+        <div class="expense-summary-row">
+          <div class="expense-big-num" id="expenseTodayTotal">¥0.00</div>
+          <div class="expense-month-box">
+            <div class="expense-month-label">本月累计</div>
+            <div class="expense-month-num" id="expenseMonthTotal">¥0.00</div>
+          </div>
+        </div>
+        <div class="expense-category-bar" id="expenseCategoryBar"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📋 今日账单明细</span></div>
+        <div class="expense-bill-list" id="expenseBillList">
+          <div class="empty-state" id="expenseBillEmpty">
+            <div class="empty-icon">🧾</div>
+            <p>今天还没有消费记录~</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📖 历史账单</span>
+          <div class="history-nav">
+            <button class="btn-history" onclick="expensePrev()">◀</button>
+            <span class="history-date" id="expenseHistoryDate">今天</span>
+            <button class="btn-history" onclick="expenseNext()">▶</button>
+          </div>
+        </div>
+        <div class="expense-history-bills" id="expenseHistoryBills"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📊 月度分类统计</span></div>
+        <div class="expense-month-chart" id="expenseMonthChart"></div>
+      </div>
+    </section>
+
     <!-- ===== 养娃实记 ===== -->
-    <section class="panel active" id="panel-yangwa">
+    <section class="panel" id="panel-yangwa">
       <header class="panel-header orange">
         <h1>🧒 养娃实记</h1>
         <p>记录宝贝成长的每一天</p>
@@ -55,46 +178,18 @@
           <span class="day-badge" id="dayBadge"></span>
         </div>
       </header>
-
       <div class="card">
-        <div class="card-title">
-          <span>📝 今日记录</span>
-          <button class="btn-add" onclick="addYangwa()">+ 新增</button>
-        </div>
-        <div class="yangwa-list" id="yangwaList">
-          <!-- 动态生成 -->
-        </div>
-        <div class="empty-state" id="yangwaEmpty">
-          <div class="empty-icon">🍼</div>
-          <p>今天还没有记录哦~<br>点击 + 新增 开始记录宝贝的一天</p>
-        </div>
+        <div class="card-title"><span>📝 今日记录</span><button class="btn-add" onclick="addYangwa()">+ 新增</button></div>
+        <div class="yangwa-list" id="yangwaList"></div>
+        <div class="empty-state" id="yangwaEmpty"><div class="empty-icon">🍼</div><p>今天还没有记录哦~<br>点击 + 新增 开始记录宝贝的一天</p></div>
       </div>
-
-      <div class="card">
-        <div class="card-title">📊 本周概览</div>
-        <div class="week-grid" id="weekGrid">
-          <!-- 动态生成 -->
-        </div>
-      </div>
-
+      <div class="card"><div class="card-title">📊 本周概览</div><div class="week-grid" id="weekGrid"></div></div>
       <div class="card">
         <div class="card-title">🌟 成长里程碑</div>
         <div class="milestone-list">
-          <div class="milestone done">
-            <span class="milestone-icon">🦷</span>
-            <span>第一次长牙</span>
-            <span class="milestone-date">2026-05-10</span>
-          </div>
-          <div class="milestone done">
-            <span class="milestone-icon">👣</span>
-            <span>第一次走路</span>
-            <span class="milestone-date">2026-06-15</span>
-          </div>
-          <div class="milestone pending">
-            <span class="milestone-icon">🎨</span>
-            <span>第一次画画</span>
-            <span class="milestone-date">期待中...</span>
-          </div>
+          <div class="milestone done"><span class="milestone-icon">🦷</span><span>第一次长牙</span><span class="milestone-date">2026-05-10</span></div>
+          <div class="milestone done"><span class="milestone-icon">👣</span><span>第一次走路</span><span class="milestone-date">2026-06-15</span></div>
+          <div class="milestone pending"><span class="milestone-icon">🎨</span><span>第一次画画</span><span class="milestone-date">期待中...</span></div>
         </div>
       </div>
     </section>
@@ -104,88 +199,21 @@
       <header class="panel-header blue">
         <h1>📚 税务考证</h1>
         <p>三科并进 · 每日打卡</p>
-        <div class="date-bar">
-          <span class="today-date" id="todayDate2"></span>
-          <span class="day-badge" id="dayBadge2">距考试还有 <b id="examDays">--</b> 天</span>
-        </div>
+        <div class="date-bar"><span class="today-date" id="todayDate2"></span><span class="day-badge" id="dayBadge2">距考试还有 <b id="examDays">--</b> 天</span></div>
       </header>
-
-      <!-- 法律 -->
       <div class="subject-card law">
-        <div class="subject-header">
-          <div class="subject-icon">⚖️</div>
-          <div class="subject-info">
-            <h2>法律</h2>
-            <div class="subject-progress">
-              <div class="progress-bar"><div class="progress-fill law-fill" id="lawProgress"></div></div>
-              <span class="progress-text" id="lawPercent">0%</span>
-            </div>
-          </div>
-          <span class="subject-status incomplete" id="lawStatus">⬤ 未完成</span>
-        </div>
-        <div class="study-log" id="lawLog">
-          <div class="study-item" id="lawToday">
-            <div class="study-input-area">
-              <input type="text" class="study-input" id="lawInput" placeholder="输入今天学了什么..." />
-              <button class="btn-record" onclick="recordStudy('law')">记录</button>
-            </div>
-          </div>
-          <div class="study-history" id="lawHistory"></div>
-        </div>
+        <div class="subject-header"><div class="subject-icon">⚖️</div><div class="subject-info"><h2>法律</h2><div class="subject-progress"><div class="progress-bar"><div class="progress-fill law-fill" id="lawProgress"></div></div><span class="progress-text" id="lawPercent">0%</span></div></div><span class="subject-status incomplete" id="lawStatus">⬤ 未完成</span></div>
+        <div class="study-log"><div class="study-input-area"><input type="text" class="study-input" id="lawInput" placeholder="输入今天学了什么..." /><button class="btn-record" onclick="recordStudy('law')">记录</button></div><div class="study-history" id="lawHistory"></div></div>
       </div>
-
-      <!-- 财会 -->
       <div class="subject-card finance">
-        <div class="subject-header">
-          <div class="subject-icon">💰</div>
-          <div class="subject-info">
-            <h2>财会</h2>
-            <div class="subject-progress">
-              <div class="progress-bar"><div class="progress-fill finance-fill" id="financeProgress"></div></div>
-              <span class="progress-text" id="financePercent">0%</span>
-            </div>
-          </div>
-          <span class="subject-status incomplete" id="financeStatus">⬤ 未完成</span>
-        </div>
-        <div class="study-log" id="financeLog">
-          <div class="study-item" id="financeToday">
-            <div class="study-input-area">
-              <input type="text" class="study-input" id="financeInput" placeholder="输入今天学了什么..." />
-              <button class="btn-record" onclick="recordStudy('finance')">记录</button>
-            </div>
-          </div>
-          <div class="study-history" id="financeHistory"></div>
-        </div>
+        <div class="subject-header"><div class="subject-icon">💰</div><div class="subject-info"><h2>财会</h2><div class="subject-progress"><div class="progress-bar"><div class="progress-fill finance-fill" id="financeProgress"></div></div><span class="progress-text" id="financePercent">0%</span></div></div><span class="subject-status incomplete" id="financeStatus">⬤ 未完成</span></div>
+        <div class="study-log"><div class="study-input-area"><input type="text" class="study-input" id="financeInput" placeholder="输入今天学了什么..." /><button class="btn-record" onclick="recordStudy('finance')">记录</button></div><div class="study-history" id="financeHistory"></div></div>
       </div>
-
-      <!-- 实务 -->
       <div class="subject-card practice">
-        <div class="subject-header">
-          <div class="subject-icon">📋</div>
-          <div class="subject-info">
-            <h2>实务</h2>
-            <div class="subject-progress">
-              <div class="progress-bar"><div class="progress-fill practice-fill" id="practiceProgress"></div></div>
-              <span class="progress-text" id="practicePercent">0%</span>
-            </div>
-          </div>
-          <span class="subject-status incomplete" id="practiceStatus">⬤ 未完成</span>
-        </div>
-        <div class="study-log" id="practiceLog">
-          <div class="study-item" id="practiceToday">
-            <div class="study-input-area">
-              <input type="text" class="study-input" id="practiceInput" placeholder="输入今天学了什么..." />
-              <button class="btn-record" onclick="recordStudy('practice')">记录</button>
-            </div>
-          </div>
-          <div class="study-history" id="practiceHistory"></div>
-        </div>
+        <div class="subject-header"><div class="subject-icon">📋</div><div class="subject-info"><h2>实务</h2><div class="subject-progress"><div class="progress-bar"><div class="progress-fill practice-fill" id="practiceProgress"></div></div><span class="progress-text" id="practicePercent">0%</span></div></div><span class="subject-status incomplete" id="practiceStatus">⬤ 未完成</span></div>
+        <div class="study-log"><div class="study-input-area"><input type="text" class="study-input" id="practiceInput" placeholder="输入今天学了什么..." /><button class="btn-record" onclick="recordStudy('practice')">记录</button></div><div class="study-history" id="practiceHistory"></div></div>
       </div>
-
-      <div class="card">
-        <div class="card-title">📅 学习日历</div>
-        <div class="study-calendar" id="studyCalendar"></div>
-      </div>
+      <div class="card"><div class="card-title">📅 学习日历</div><div class="study-calendar" id="studyCalendar"></div></div>
     </section>
 
     <!-- ===== 每日咨询 ===== -->
@@ -193,44 +221,11 @@
       <header class="panel-header green">
         <h1>📰 每日咨询</h1>
         <p>股市 · 财经 · AI 实时资讯</p>
-        <div class="date-bar">
-          <span class="today-date" id="todayDate3"></span>
-          <span class="day-badge refresh-badge" onclick="refreshNews()">🔄 刷新</span>
-        </div>
+        <div class="date-bar"><span class="today-date" id="todayDate3"></span><span class="day-badge refresh-badge" onclick="refreshNews()">🔄 刷新</span></div>
       </header>
-
-      <!-- 股市 -->
-      <div class="card news-card stock">
-        <div class="card-title">
-          <span class="news-icon">📈</span>
-          <span>股市动态</span>
-        </div>
-        <div class="news-list" id="stockNews">
-          <div class="news-loading">加载中...</div>
-        </div>
-      </div>
-
-      <!-- 财经 -->
-      <div class="card news-card finance-news">
-        <div class="card-title">
-          <span class="news-icon">🏦</span>
-          <span>财经资讯</span>
-        </div>
-        <div class="news-list" id="financeNews">
-          <div class="news-loading">加载中...</div>
-        </div>
-      </div>
-
-      <!-- AI -->
-      <div class="card news-card ai">
-        <div class="card-title">
-          <span class="news-icon">🤖</span>
-          <span>AI 前沿</span>
-        </div>
-        <div class="news-list" id="aiNews">
-          <div class="news-loading">加载中...</div>
-        </div>
-      </div>
+      <div class="card news-card stock"><div class="card-title"><span class="news-icon">📈</span><span>股市动态</span></div><div class="news-list" id="stockNews"><div class="news-loading">加载中...</div></div></div>
+      <div class="card news-card finance-news"><div class="card-title"><span class="news-icon">🏦</span><span>财经资讯</span></div><div class="news-list" id="financeNews"><div class="news-loading">加载中...</div></div></div>
+      <div class="card news-card ai"><div class="card-title"><span class="news-icon">🤖</span><span>AI 前沿</span></div><div class="news-list" id="aiNews"><div class="news-loading">加载中...</div></div></div>
     </section>
 
     <!-- ===== 树洞 ===== -->
@@ -239,50 +234,10 @@
         <h1>◉ 树洞</h1>
         <p>说给树洞听 · 安全又温暖</p>
       </header>
-
-      <div class="tree-intro">
-        <div class="tree-icon">🌳</div>
-        <p>在这里，你可以倾诉任何心事。<br>所有内容只保存在你的手机上，无人知晓。</p>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>✍️ 写下你的心事</span>
-        </div>
-        <textarea class="hole-textarea" id="holeTextarea" placeholder="今天想说点什么..."></textarea>
-        <div class="hole-tags" id="holeTags">
-          <span class="hole-tag" data-mood="开心">😊 开心</span>
-          <span class="hole-tag" data-mood="难过">😢 难过</span>
-          <span class="hole-tag" data-mood="焦虑">😰 焦虑</span>
-          <span class="hole-tag" data-mood="愤怒">😡 愤怒</span>
-          <span class="hole-tag" data-mood="迷茫">😶 迷茫</span>
-          <span class="hole-tag" data-mood="感恩">🥰 感恩</span>
-        </div>
-        <button class="btn-submit-hole" onclick="submitTreehole()">投递给树洞</button>
-      </div>
-
-      <div class="card">
-        <div class="card-title">💌 树洞回信</div>
-        <div class="hole-reply" id="holeReply">
-          <div class="empty-state">
-            <div class="empty-icon">💌</div>
-            <p>投递心事后，树洞会给你温暖的回信</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>📖 心事记录</span>
-          <button class="btn-clear-hole" onclick="clearTreehole()">清空</button>
-        </div>
-        <div class="hole-records" id="holeRecords">
-          <div class="empty-state" id="holeEmpty">
-            <div class="empty-icon">🌿</div>
-            <p>还没有心事记录~</p>
-          </div>
-        </div>
-      </div>
+      <div class="tree-intro"><div class="tree-icon">🌳</div><p>在这里，你可以倾诉任何心事。<br>所有内容只保存在你的手机上，无人知晓。</p></div>
+      <div class="card"><div class="card-title"><span>✍️ 写下你的心事</span></div><textarea class="hole-textarea" id="holeTextarea" placeholder="今天想说点什么..."></textarea><div class="hole-tags"><span class="hole-tag" data-mood="开心">😊 开心</span><span class="hole-tag" data-mood="难过">😢 难过</span><span class="hole-tag" data-mood="焦虑">😰 焦虑</span><span class="hole-tag" data-mood="愤怒">😡 愤怒</span><span class="hole-tag" data-mood="迷茫">😶 迷茫</span><span class="hole-tag" data-mood="感恩">🥰 感恩</span></div><button class="btn-submit-hole" onclick="submitTreehole()">投递给树洞</button></div>
+      <div class="card"><div class="card-title">💌 树洞回信</div><div class="hole-reply" id="holeReply"><div class="empty-state"><div class="empty-icon">💌</div><p>投递心事后，树洞会给你温暖的回信</p></div></div></div>
+      <div class="card"><div class="card-title"><span>📖 心事记录</span><button class="btn-clear-hole" onclick="clearTreehole()">清空</button></div><div class="hole-records" id="holeRecords"><div class="empty-state" id="holeEmpty"><div class="empty-icon">🌿</div><p>还没有心事记录~</p></div></div></div>
     </section>
 
   </main>
