@@ -1,0 +1,24 @@
+{
+  "name": "小兰的工作台",
+  "short_name": "小兰工作台",
+  "description": "养娃实记 · 税务考证 · 每日咨询 - 多巴胺配色工作台",
+  "start_url": "/xiaolan-workbench/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F6F0",
+  "theme_color": "#FF6B35",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>小兰的工作台</title>
+  <meta name="theme-color" content="#FF6B35" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="小兰的工作台" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🌸</div>
+      <div class="brand-name">小兰的工作台</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-id="yangwa">
+        <span class="nav-dot orange"></span>
+        <span>养娃实记</span>
+      </button>
+      <button class="nav-btn" data-id="kaosheng">
+        <span class="nav-dot blue"></span>
+        <span>税务考证</span>
+      </button>
+      <button class="nav-btn" data-id="zixun">
+        <span class="nav-dot green"></span>
+        <span>每日咨询</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- 主内容 -->
+  <main class="content">
+
+    <!-- ===== 养娃实记 ===== -->
+    <section class="panel active" id="panel-yangwa">
+      <header class="panel-header orange">
+        <h1>🧒 养娃实记</h1>
+        <p>记录宝贝成长的每一天</p>
+        <div class="date-bar">
+          <span class="today-date" id="todayDate"></span>
+          <span class="day-badge" id="dayBadge"></span>
+        </div>
+      </header>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📝 今日记录</span>
+          <button class="btn-add" onclick="addYangwa()">+ 新增</button>
+        </div>
+        <div class="yangwa-list" id="yangwaList">
+          <!-- 动态生成 -->
+        </div>
+        <div class="empty-state" id="yangwaEmpty">
+          <div class="empty-icon">🍼</div>
+          <p>今天还没有记录哦~<br>点击 + 新增 开始记录宝贝的一天</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 本周概览</div>
+        <div class="week-grid" id="weekGrid">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🌟 成长里程碑</div>
+        <div class="milestone-list">
+          <div class="milestone done">
+            <span class="milestone-icon">🦷</span>
+            <span>第一次长牙</span>
+            <span class="milestone-date">2026-05-10</span>
+          </div>
+          <div class="milestone done">
+            <span class="milestone-icon">👣</span>
+            <span>第一次走路</span>
+            <span class="milestone-date">2026-06-15</span>
+          </div>
+          <div class="milestone pending">
+            <span class="milestone-icon">🎨</span>
+            <span>第一次画画</span>
+            <span class="milestone-date">期待中...</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 税务考证 ===== -->
+    <section class="panel" id="panel-kaosheng">
+      <header class="panel-header blue">
+        <h1>📚 税务考证</h1>
+        <p>三科并进 · 每日打卡</p>
+        <div class="date-bar">
+          <span class="today-date" id="todayDate2"></span>
+          <span class="day-badge" id="dayBadge2">距考试还有 <b id="examDays">--</b> 天</span>
+        </div>
+      </header>
+
+      <!-- 法律 -->
+      <div class="subject-card law">
+        <div class="subject-header">
+          <div class="subject-icon">⚖️</div>
+          <div class="subject-info">
+            <h2>法律</h2>
+            <div class="subject-progress">
+              <div class="progress-bar"><div class="progress-fill law-fill" id="lawProgress"></div></div>
+              <span class="progress-text" id="lawPercent">0%</span>
+            </div>
+          </div>
+          <span class="subject-status incomplete" id="lawStatus">⬤ 未完成</span>
+        </div>
+        <div class="study-log" id="lawLog">
+          <div class="study-item" id="lawToday">
+            <div class="study-input-area">
+              <input type="text" class="study-input" id="lawInput" placeholder="输入今天学了什么..." />
+              <button class="btn-record" onclick="recordStudy('law')">记录</button>
+            </div>
+          </div>
+          <div class="study-history" id="lawHistory"></div>
+        </div>
+      </div>
+
+      <!-- 财会 -->
+      <div class="subject-card finance">
+        <div class="subject-header">
+          <div class="subject-icon">💰</div>
+          <div class="subject-info">
+            <h2>财会</h2>
+            <div class="subject-progress">
+              <div class="progress-bar"><div class="progress-fill finance-fill" id="financeProgress"></div></div>
+              <span class="progress-text" id="financePercent">0%</span>
+            </div>
+          </div>
+          <span class="subject-status incomplete" id="financeStatus">⬤ 未完成</span>
+        </div>
+        <div class="study-log" id="financeLog">
+          <div class="study-item" id="financeToday">
+            <div class="study-input-area">
+              <input type="text" class="study-input" id="financeInput" placeholder="输入今天学了什么..." />
+              <button class="btn-record" onclick="recordStudy('finance')">记录</button>
+            </div>
+          </div>
+          <div class="study-history" id="financeHistory"></div>
+        </div>
+      </div>
+
+      <!-- 实务 -->
+      <div class="subject-card practice">
+        <div class="subject-header">
+          <div class="subject-icon">📋</div>
+          <div class="subject-info">
+            <h2>实务</h2>
+            <div class="subject-progress">
+              <div class="progress-bar"><div class="progress-fill practice-fill" id="practiceProgress"></div></div>
+              <span class="progress-text" id="practicePercent">0%</span>
+            </div>
+          </div>
+          <span class="subject-status incomplete" id="practiceStatus">⬤ 未完成</span>
+        </div>
+        <div class="study-log" id="practiceLog">
+          <div class="study-item" id="practiceToday">
+            <div class="study-input-area">
+              <input type="text" class="study-input" id="practiceInput" placeholder="输入今天学了什么..." />
+              <button class="btn-record" onclick="recordStudy('practice')">记录</button>
+            </div>
+          </div>
+          <div class="study-history" id="practiceHistory"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 学习日历</div>
+        <div class="study-calendar" id="studyCalendar"></div>
+      </div>
+    </section>
+
+    <!-- ===== 每日咨询 ===== -->
+    <section class="panel" id="panel-zixun">
+      <header class="panel-header green">
+        <h1>📰 每日咨询</h1>
+        <p>股市 · 财经 · AI 实时资讯</p>
+        <div class="date-bar">
+          <span class="today-date" id="todayDate3"></span>
+          <span class="day-badge refresh-badge" onclick="refreshNews()">🔄 刷新</span>
+        </div>
+      </header>
+
+      <!-- 股市 -->
+      <div class="card news-card stock">
+        <div class="card-title">
+          <span class="news-icon">📈</span>
+          <span>股市动态</span>
+        </div>
+        <div class="news-list" id="stockNews">
+          <div class="news-loading">加载中...</div>
+        </div>
+      </div>
+
+      <!-- 财经 -->
+      <div class="card news-card finance-news">
+        <div class="card-title">
+          <span class="news-icon">🏦</span>
+          <span>财经资讯</span>
+        </div>
+        <div class="news-list" id="financeNews">
+          <div class="news-loading">加载中...</div>
+        </div>
+      </div>
+
+      <!-- AI -->
+      <div class="card news-card ai">
+        <div class="card-title">
+          <span class="news-icon">🤖</span>
+          <span>AI 前沿</span>
+        </div>
+        <div class="news-list" id="aiNews">
+          <div class="news-loading">加载中...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
